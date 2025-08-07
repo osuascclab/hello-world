@@ -28,16 +28,14 @@ jobs:
       - name: Run update script
         run: ./update.sh
 
-      - name: Generate bake file
+            - name: Generate bake file
         run: |
           cat <<EOF > docker-bake.hcl
           group "default" {
             targets = ["hello-world"]
           }
-
           target "hello-world" {
-            dockerfile = "Dockerfile-linux.template"
-            tags   = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
             platforms = [
               "linux/amd64",
               "linux/arm/v5",
@@ -48,24 +46,26 @@ jobs:
               "linux/mips64le",
               "linux/ppc64le",
               "linux/riscv64",
-              "linux/s390x"
+              "linux/s390x",
+              "windows/amd64"
             ]
           }
-
-          target "hello-world" {
+          target "hello-world-windows-nanoserver-ltsc2022" {
+            inherits = ["hello-world"]
             context = "amd64/hello-world/nanoserver-ltsc2022"
-            dockerfile = "amd64/hello-world/nanoserver-ltsc2022/Dockerfile"
-            tags   = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
-            platforms = ["windows/amd64;os.version=10.0.20348.2527"]
+            platforms = ["windows/amd64"]
           }
-
-          target "hello-world" {
+          target "hello-world-windows-nanoserver-ltsc2025" {
+            inherits = ["hello-world"]
             context = "amd64/hello-world/nanoserver-ltsc2025"
-            dockerfile = "amd64/hello-world/nanoserver-ltsc2025/Dockerfile"
-            tags   = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
-            platforms = ["windows/amd64;os.version=10.0.26100.1"]
+            platforms = ["windows/amd64"]
           }
           EOF
 
       - name: Build and push
-        run: docker buildx bake --push
+        run: |
+          docker buildx bake --push \
+            --file docker-bake.hcl \
+            hello-world \
+            hello-world-windows-nanoserver-ltsc2022 \
+            hello-world-windows-nanoserver-ltsc2025
