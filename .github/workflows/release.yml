@@ -28,44 +28,98 @@ jobs:
       - name: Run update script
         run: ./update.sh
 
-      - name: Generate bake file
+            - name: Generate bake file
         run: |
           cat <<EOF > docker-bake.hcl
           group "default" {
-            targets = ["hello-world"]
-          }
-          target "hello-world" {
-            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
-            platforms = [
-              "linux/amd64",
-              "linux/arm/v5",
-              "linux/arm/v6",
-              "linux/arm/v7",
-              "linux/arm64",
-              "linux/386",
-              "linux/mips64le",
-              "linux/ppc64le",
-              "linux/riscv64",
-              "linux/s390x",
-              "windows/amd64"
+            targets = [
+              "hello-world-linux-amd64",
+              "hello-world-linux-arm-v5",
+              "hello-world-linux-arm-v6",
+              "hello-world-linux-arm-v7",
+              "hello-world-linux-arm64",
+              "hello-world-linux-386",
+              "hello-world-linux-mips64le",
+              "hello-world-linux-ppc64le",
+              "hello-world-linux-riscv64",
+              "hello-world-linux-s390x",
+              "hello-world-windows-nanoserver-ltsc2022",
+              "hello-world-windows-nanoserver-ltsc2025"
             ]
           }
+
+          target "hello-world-linux-amd64" {
+            context = "amd64/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/amd64"]
+          }
+
+          target "hello-world-linux-arm-v5" {
+            context = "arm32v5/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/arm/v5"]
+          }
+
+          target "hello-world-linux-arm-v6" {
+            context = "arm32v6/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/arm/v6"]
+          }
+
+          target "hello-world-linux-arm-v7" {
+            context = "arm32v7/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/arm/v7"]
+          }
+
+          target "hello-world-linux-arm64" {
+            context = "arm64v8/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/arm64"]
+          }
+
+          target "hello-world-linux-386" {
+            context = "i386/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/386"]
+          }
+
+          target "hello-world-linux-mips64le" {
+            context = "mips64le/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/mips64le"]
+          }
+
+          target "hello-world-linux-ppc64le" {
+            context = "ppc64le/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/ppc64le"]
+          }
+
+          target "hello-world-linux-riscv64" {
+            context = "riscv64/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/riscv64"]
+          }
+
+          target "hello-world-linux-s390x" {
+            context = "s390x/hello-world"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["linux/s390x"]
+          }
+
           target "hello-world-windows-nanoserver-ltsc2022" {
-            inherits = ["hello-world"]
             context = "amd64/hello-world/nanoserver-ltsc2022"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
             platforms = ["windows/amd64"]
           }
+
           target "hello-world-windows-nanoserver-ltsc2025" {
-            inherits = ["hello-world"]
             context = "amd64/hello-world/nanoserver-ltsc2025"
+            tags = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
             platforms = ["windows/amd64"]
           }
           EOF
 
       - name: Build and push
-        run: |
-          docker buildx bake --push \
-            --file docker-bake.hcl \
-            hello-world \
-            hello-world-windows-nanoserver-ltsc2022 \
-            hello-world-windows-nanoserver-ltsc2025
+        run: docker buildx bake --push
