@@ -28,7 +28,7 @@ jobs:
       - name: Run update script
         run: ./update.sh
 
-            - name: Generate bake file
+      - name: Generate bake file
         run: |
           cat <<EOF > docker-bake.hcl
           group "default" {
