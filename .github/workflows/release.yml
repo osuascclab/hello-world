@@ -28,20 +28,44 @@ jobs:
       - name: Run update script
         run: ./update.sh
 
-      - name: Build and push
+      - name: Generate bake file
         run: |
-          # The platforms we are building for
-          PLATFORMS="linux/amd64,linux/arm/v5,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/mips64le,linux/ppc64le,linux/riscv64,linux/s390x,windows/amd64-nanoserver-ltsc2022,windows/amd64-nanoserver-ltsc2025"
+          cat <<EOF > docker-bake.hcl
+          group "default" {
+            targets = ["hello-world"]
+          }
 
-          # The name of the image
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/hello-world"
+          target "hello-world" {
+            dockerfile = "Dockerfile-linux.template"
+            tags   = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = [
+              "linux/amd64",
+              "linux/arm/v5",
+              "linux/arm/v6",
+              "linux/arm/v7",
+              "linux/arm64",
+              "linux/386",
+              "linux/mips64le",
+              "linux/ppc64le",
+              "linux/riscv64",
+              "linux/s390x"
+            ]
+          }
 
-          # The tags for the image
-          TAGS="${IMAGE_NAME}:${GITHUB_REF_NAME}"
+          target "hello-world" {
+            context = "amd64/hello-world/nanoserver-ltsc2022"
+            dockerfile = "amd64/hello-world/nanoserver-ltsc2022/Dockerfile"
+            tags   = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["windows/amd64;os.version=10.0.20348.2527"]
+          }
 
-          # Build and push the image
-          docker buildx build \
-            --push \
-            --tag "${TAGS}" \
-            --platform "${PLATFORMS}" \
-            .
+          target "hello-world" {
+            context = "amd64/hello-world/nanoserver-ltsc2025"
+            dockerfile = "amd64/hello-world/nanoserver-ltsc2025/Dockerfile"
+            tags   = ["ghcr.io/${{ github.repository_owner }}/hello-world:${{ github.ref_name }}"]
+            platforms = ["windows/amd64;os.version=10.0.26100.1"]
+          }
+          EOF
+
+      - name: Build and push
+        run: docker buildx bake --push
