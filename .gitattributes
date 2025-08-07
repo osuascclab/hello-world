@@ -1,3 +1,0 @@
-**/*.txt  eol=lf
-Makefile  eol=lf
-hello.c   eol=lf

@@ -1,9 +1,0 @@
-**/hello
-**/nanoserver*/hello.txt
-*.md
-*.sh
-.dockerignore
-.git*
-.host-arch
-Dockerfile*
-LICENSE
