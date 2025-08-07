@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Stage 1: Build the C application
-FROM gcc:latest as builder
+FROM gcc:latest AS builder
 WORKDIR /app
 COPY hello.c .
 RUN gcc -o hello hello.c -static
